@@ -1,11 +1,22 @@
 import Koa from 'koa'
 import { Nuxt, Builder } from 'nuxt'
 import Router from './router/index'
+import cros from 'koa-cors'
+import connectDB from './lib/connectDB'
+
+const koaBody = require('koa-body')
 
 const app = new Koa()
 const host = process.env.HOST || '127.0.0.1'
 const port = process.env.PORT || 3000
 
+try {
+  connectDB()
+} catch (err) {
+  console.log(err)
+}
+
+app.use(koaBody())
 // Import and Set Nuxt.js options
 let config = require('../nuxt.config.js')
 config.dev = !(app.env === 'production')
@@ -21,6 +32,7 @@ if (config.dev) {
     process.exit(1)
   })
 }
+app.use(cros())
 app.use(Router.routes(), Router.allowedMethods())
 app.use(async (ctx, next) => {
   const start = new Date()
