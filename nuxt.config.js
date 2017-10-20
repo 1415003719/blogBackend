@@ -25,7 +25,7 @@ module.exports = {
   build: {
     vendor: ['axios']
   },
-  plugins: ['~/plugins/vuetify'],
+  plugins: ['~/plugins/vuetify', '~/plugins/vuex'],
   modules: [
   ]
 }

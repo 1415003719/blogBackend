@@ -1,13 +1,18 @@
 <template>
   <div>
     <nuxt/>
-    <my-footer/>
   </div>
 </template>
 
 <script>
-
+export default {
+  created () {
+    console.log(1)
+    this.$store.dispatch('featchBlogs')
+  },
+}
 </script>
+
 
 <style>
 </style>

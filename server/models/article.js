@@ -15,8 +15,15 @@ Article.create = async function (options) {
   let body = await validataBody(options)
   let article = init(body)
   // console.log(article)
-  let result = await article.save()
-  return result
+  let blog = await article.save()
+  return blog
+}
+
+Article.findAll = async function (options) {
+  options = options || {}
+  let conditions = await checkConditions(options)
+  let blogs = await findBlogsByConditions(conditions)
+  return blogs
 }
 
 // instance methods
@@ -64,6 +71,32 @@ let validataBody = function (options) {
     }
     resolve(options)
   })
+}
+
+let checkConditions = function (options) {
+  options = options || {}
+  let conditions = {}
+  return new Promise(function (resolve, reject) {
+    if (options._id) {
+      conditions._id = options._id
+    }
+    if (conditions.publicationDate) {
+      conditions.publicationDate = options.publicationDate
+    }
+    if (typeof options.active === 'boolean') {
+      conditions.active = options.active
+    }
+    if (options.page) {
+      conditions.page = options.page
+    }
+    resolve(conditions)
+  })
+}
+
+let findBlogsByConditions = async function (conditions) {
+  conditions = conditions || {}
+  let blogs = await ArticleRepository.findBlogsByConditions(conditions)
+  return blogs
 }
 
 let init = function (article) {

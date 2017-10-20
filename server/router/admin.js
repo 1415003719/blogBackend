@@ -3,8 +3,25 @@ import Blog from './../models/article'
 
 let router = Router()
 
-router.get('/admin', async (ctx) => {
-  ctx.body = {'result': 'ok', status: 200}
+router.get('/blogs', async (ctx) => {
+  let query = ctx.request.query || {}
+  try {
+    let blogs = await Blog.findAll(query)
+    ctx.body = blogs
+  } catch (err) {
+    ctx.body = {'err': err}
+  }
+})
+
+router.get('/blog/:id', async (ctx) => {
+  let id = ctx.params.id || ''
+  let query = {_id: id}
+  try {
+    let blogs = await Blog.findAll(query)
+    ctx.body = blogs
+  } catch (err) {
+    ctx.body = {'err': err}
+  }
 })
 
 router.post('/blogs', async (ctx) => {
@@ -14,7 +31,6 @@ router.post('/blogs', async (ctx) => {
     let blog = await Blog.create(body)
     ctx.body = blog
   } catch (err) {
-    console.log(err.name, err.message, err.number, err.description)
     ctx.body = {'err': err}
   }
 })

@@ -11,70 +11,59 @@ let ArticleRepositorySchema = new Schema({
   _type: {type: String, default: 'Article'}
 }, schemaOptions)
 
-// ArticleRepositorySchema.statics.findByConditions = function (options, callback) {
-//   var conditions = options || {}
-//   // console.log(conditions)
-//   var q = this.find()
-//   q.where('_type').equals('Article')
+ArticleRepositorySchema.statics.findBlogsByConditions = async function (options, callback) {
+  var conditions = options || {}
+  // console.log(conditions)
+  var q = this.find()
+  q.where('_type').equals('Article')
 
-//   if (conditions._id) {
-//     q.where('_id').equals(conditions._id)
-//   }
-//   if (conditions.customerId) {
-//     q.where('customerId').equals(conditions.customerId)
-//   }
-//   if (conditions.userId) {
-//     q.where('userIds').equals(conditions.userId)
-//   }
-//   if (conditions.service) {
-//     q.where('service').equals(conditions.service)
-//   }
-//   if (conditions.subCateogry) {
-//     q.where('subCateogry').equals(conditions.subCateogry)
-//   }
-//   if (typeof conditions.finish !== 'undefined') {
-//     q.where('finish').equals(conditions.finish)
-//   }
+  if (conditions._id) {
+    q.where('_id').equals(conditions._id)
+  }
 
-//   if (typeof conditions.active !== 'undefined') {
-//     q.where('active').equals(conditions.active)
-//   }
+  if (typeof conditions.active === 'boolean') {
+    q.where('active').equals(conditions.active)
+  } else {
+    q.where('active').equals(true)
+  }
 
-//   if (conditions.populate) {
-//     if (typeof conditions.populate === 'string') {
-//       conditions.populate = conditions.populate.split('+')
-//     }
-//     for (var i = 0; i < conditions.populate.length; i++) {
-//       q.populate(conditions.populate[i])
-//     }
-//   }
+  // if (conditions.populate) {
+  //   if (typeof conditions.populate === 'string') {
+  //     conditions.populate = conditions.populate.split('+')
+  //   }
+  //   for (var i = 0; i < conditions.populate.length; i++) {
+  //     q.populate(conditions.populate[i])
+  //   }
+  // }
 
-//   if (conditions.sort) {
-//     q.sort(conditions.sort)
-//   }
-//   // console.log(q.getQuery())
-//   var page = conditions.page
-//   if (typeof page !== 'undefined') {
-//     q.sort('_id')
-//     var paginateOptions = {
-//       perPage: conditions.perPage || 10,
-//       delta: 9,
-//       page: page
-//     }
-//     q.paginate(paginateOptions, function (err, res) {
-//       if (err) {
-//         callback(err)
-//       } else {
-//         callback(null, res.results, res.count)
-//       }
-//     })
-//   } else {
-//     q.exec(callback)
-//   }
-// }
+  // if (conditions.sort) {
+  //   q.sort(conditions.sort)
+  // }
+  // console.log(q.getQuery())
+  var page = conditions.page
+  if (typeof page !== 'undefined') {
+    q.sort('publicationDate')
+    var paginateOptions = {
+      perPage: conditions.perPage || 10,
+      delta: 9,
+      page: page
+    }
+    // q.paginate(paginateOptions, function (err, res) {
+    //   if (err) {
+    //     callback(err)
+    //   } else {
+    //     callback(null, res.results, res.count)
+    //   }
+    // })
+    let results = await q.paginate(paginateOptions)
+    return results
+  } else {
+    let results = await q.exec()
+    return results
+  }
+}
 ArticleRepositorySchema.statics.saveArticle = async function (article) {
   let Self = this
-  console.log(self)
   var id = article.getId() || new mongoose.Types.ObjectId()
   delete article.id
   let articleRepo = await Self.findById(id)
@@ -84,10 +73,12 @@ ArticleRepositorySchema.statics.saveArticle = async function (article) {
         articleRepo[prop] = article[prop]
       }
     }
-    return await articleRepo.save()
+    let blog = await articleRepo.save()
+    return blog
   } else {
     let newArticle = new Self(article)
-    return await newArticle.save()
+    let blog = await newArticle.save()
+    return blog
   }
 }
 
